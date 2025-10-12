@@ -12,7 +12,7 @@ class Event(models.Model):
     date_time = models.DateTimeField()
     location = models.CharField(max_length=255)
     organizer = models.ForeignKey(User, related_name='organized_events', on_delete=models.CASCADE)
-    capacity = models.PositiveIntegerField()
+    capacity = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def is_upcoming(self):

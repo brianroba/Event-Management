@@ -9,6 +9,9 @@ from .serializers import EventSerializer
 from rest_framework import generics, permissions
 from .serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from django.db.models import Count
 
 # Create your views here.
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -52,6 +55,39 @@ class EventViewSet(viewsets.ModelViewSet):
 User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
+    event = Event.objects.get(pk=event_id)
+    current_registrations = event.registrations.count()  # Assuming related name 'registrations'
+    if current_registrations >= event.capacity:
+        return Response({"detail": "Event capacity reached."}, status=400)
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
+
+class EventListView(generics.ListAPIView):
+    queryset = Event.objects.filter(date__gte=timezone.now())  # Upcoming events
+    serializer_class = EventSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'title': ['icontains'],       # Case-insensitive contains
+        'location': ['icontains'],
+        'date': ['gte', 'lte'],       # Date range filtering
+    }
+
+class Registration(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, related_name='registrations', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'event')  # prevent duplicate registrations
+
+class Registration(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, related_name='registrations', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'event')  # prevent duplicate registrations
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
