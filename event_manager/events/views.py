@@ -1,26 +1,28 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from django.utils import timezone
-from django.db.models import Q
-from .models import Event
-from .serializers import EventSerializer
-from rest_framework import generics, permissions
-from .serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics
-from django.db.models import Count
+from rest_framework import viewsets, permissions, generics
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import Event
+from .serializers import EventSerializer, RegisterSerializer
+from django.http import HttpResponse
 
-# Create your views here.
+def home(request):
+    return HttpResponse("Welcome to the Event Management API!")
+
+
+User = get_user_model()
+
+# Custom permission to allow only event organizers to edit
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.organizer == request.user or request.method in permissions.SAFE_METHODS
 
+# Event viewset with filtering and upcoming events
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         queryset = Event.objects.all()
@@ -50,44 +52,33 @@ class EventViewSet(viewsets.ModelViewSet):
         upcoming_events = self.get_queryset().filter(date_time__gte=timezone.now())
         serializer = self.get_serializer(upcoming_events, many=True)
         return Response(serializer.data)
- 
 
-User = get_user_model()
-
+# User registration view with event capacity check
 class RegisterView(generics.CreateAPIView):
-    event = Event.objects.get(pk=event_id)
-    current_registrations = event.registrations.count()  # Assuming related name 'registrations'
-    if current_registrations >= event.capacity:
-        return Response({"detail": "Event capacity reached."}, status=400)
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
 
+    def create(self, request, *args, **kwargs):
+        event_id = request.data.get('event_id')
+        try:
+            event = Event.objects.get(pk=event_id)
+        except Event.DoesNotExist:
+            return Response({"detail": "Event not found."}, status=404)
+
+        current_registrations = event.registrations.count()
+        if current_registrations >= event.capacity:
+            return Response({"detail": "Event capacity reached."}, status=400)
+
+        return super().create(request, *args, **kwargs)
+
+# List view for upcoming events with filters
 class EventListView(generics.ListAPIView):
-    queryset = Event.objects.filter(date__gte=timezone.now())  # Upcoming events
+    queryset = Event.objects.filter(date_time__gte=timezone.now())
     serializer_class = EventSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = {
-        'title': ['icontains'],       # Case-insensitive contains
+        'title': ['icontains'],
         'location': ['icontains'],
-        'date': ['gte', 'lte'],       # Date range filtering
+        'date_time': ['gte', 'lte'],
     }
-
-class Registration(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, related_name='registrations', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'event')  # prevent duplicate registrations
-
-class Registration(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, related_name='registrations', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'event')  # prevent duplicate registrations
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated

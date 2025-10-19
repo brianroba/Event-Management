@@ -1,10 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+#from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 # Create your models here.
-class User(AbstractUser):
-    email = models.EmailField(unique=True)
+#class User(AbstractUser):
+ #   email = models.EmailField(unique=True)
 
 class Event(models.Model):
     title = models.CharField(max_length=255)
