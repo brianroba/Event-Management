@@ -10,7 +10,7 @@ User = get_user_model()
  #   email = models.EmailField(unique=True)
 
 class Event(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, verbose_name="Event Title")
     description = models.TextField(blank=True)
     date_time = models.DateTimeField()
     location = models.CharField(max_length=255)
