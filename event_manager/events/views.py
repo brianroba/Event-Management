@@ -12,6 +12,7 @@ from .serializers import UserSerializer  # Create this if you haven’t yet
 from rest_framework import permissions
 from .permissions import IsOwnerOrReadOnly
 from django.utils import timezone
+from rest_framework import viewsets, filters
 
 
 User = get_user_model()
@@ -41,9 +42,15 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    queryset = Event.objects.all()
+
+    # Move these to class level
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['category']
+    search_fields = ['title', 'location']
 
     def get_queryset(self):
-        queryset = Event.objects.all()
+        queryset = super().get_queryset()
 
         if self.action == 'upcoming':
             queryset = queryset.filter(date_time__gte=timezone.now())
