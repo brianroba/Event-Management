@@ -19,7 +19,7 @@ A Django REST API for managing events — including CRUD operations, user authen
 ## Setup
 
 ```bash
-git clone https://github.com/your-username/event-manager-api.git
+git clone git clone https://github.com/brianroba/Event-Management.git
 cd event-manager-api
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
