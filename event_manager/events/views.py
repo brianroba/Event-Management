@@ -7,12 +7,26 @@ from rest_framework.decorators import action
 from .models import Event
 from .serializers import EventSerializer, RegisterSerializer
 from django.http import HttpResponse
-
-def home(request):
-    return HttpResponse("Welcome to the Event Management API!")
-
+from rest_framework.authtoken.models import Token
+from .serializers import UserSerializer  # Create this if you haven’t yet
 
 User = get_user_model()
+
+def home(request):
+    return HttpResponse("<center> Welcome to the Event Management API! </center>")
+
+class UserRegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({'message': 'User created successfully'}, status=201)
+        return Response(serializer.errors, status=400)
+
 
 # Custom permission to allow only event organizers to edit
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -22,7 +36,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 # Event viewset with filtering and upcoming events
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = Event.objects.all()
@@ -54,7 +68,7 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 # User registration view with event capacity check
-class RegisterView(generics.CreateAPIView):
+class EventRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
