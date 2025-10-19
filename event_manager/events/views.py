@@ -9,6 +9,9 @@ from .serializers import EventSerializer, RegisterSerializer
 from django.http import HttpResponse
 from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer  # Create this if you haven’t yet
+from rest_framework import permissions
+from .permissions import IsOwnerOrReadOnly
+
 
 User = get_user_model()
 
@@ -36,7 +39,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 # Event viewset with filtering and upcoming events
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
         queryset = Event.objects.all()
@@ -96,3 +99,7 @@ class EventListView(generics.ListAPIView):
         'location': ['icontains'],
         'date_time': ['gte', 'lte'],
     }
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.method in permissions.SAFE_METHODS or obj.organizer == request.user
