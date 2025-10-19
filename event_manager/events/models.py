@@ -17,6 +17,7 @@ class Event(models.Model):
     organizer = models.ForeignKey(User, related_name='organized_events', on_delete=models.CASCADE)
     capacity = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    registrations = models.ManyToManyField(User, related_name='event_registrations', blank=True)
 
     def is_upcoming(self):
         return self.date_time >= timezone.now()

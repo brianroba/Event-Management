@@ -84,11 +84,17 @@ class EventRegisterView(generics.CreateAPIView):
         except Event.DoesNotExist:
             return Response({"detail": "Event not found."}, status=404)
 
-        current_registrations = event.registrations.count()
-        if current_registrations >= event.capacity:
+        # Check if user already registered
+        if request.user in event.registrations.all():
+            return Response({"detail": "You are already registered for this event."}, status=400)
+
+        # Check if capacity is full
+        if event.registrations.count() >= event.capacity:
             return Response({"detail": "Event capacity reached."}, status=400)
 
-        return super().create(request, *args, **kwargs)
+        # Register the user
+        event.registrations.add(request.user)
+        return Response({"message": "Successfully registered for the event."}, status=200)
 
 # List view for upcoming events with filters
 class EventListView(generics.ListAPIView):
