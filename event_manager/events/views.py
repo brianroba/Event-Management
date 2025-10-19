@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer  # Create this if you haven’t yet
 from rest_framework import permissions
 from .permissions import IsOwnerOrReadOnly
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -34,7 +35,7 @@ class UserRegisterView(generics.CreateAPIView):
 # Custom permission to allow only event organizers to edit
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj.organizer == request.user or request.method in permissions.SAFE_METHODS
+        return request.method in permissions.SAFE_METHODS or obj.organizer == request.user
 
 # Event viewset with filtering and upcoming events
 class EventViewSet(viewsets.ModelViewSet):
@@ -100,6 +101,3 @@ class EventListView(generics.ListAPIView):
         'date_time': ['gte', 'lte'],
     }
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return request.method in permissions.SAFE_METHODS or obj.organizer == request.user
