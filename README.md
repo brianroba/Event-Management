@@ -1,6 +1,8 @@
 # Event Manager API
 
 A Django REST API for managing events — including CRUD operations, user authentication, and event registration.
+This project is a back-end only API but can be integrated with front-end UI in future.
+The APIs were tested on postman.
 
 ## Features
 
@@ -41,17 +43,21 @@ A Django REST API for managing events — including CRUD operations, user authen
 |--------|-------------------|---------------------------------------|
 | POST   | `/api/register/`  | Register a new user                    |
 | POST   | `/api/login/`     | User login                            |
-| GET    | `/api/events/`    | List all upcoming events               |
+| GET    | `/api/events/`    | View all events (Filter based on category, date, page, event_id|
 | POST   | `/api/events/`    | Create a new event (Event organizer only) |
 | PUT    | `/api/events/{id}/` | Update an existing event (Event organizer only) |
 | DELETE | `/api/events/{id}/` | Delete an event (Event organizer only) |
 
 
-7. Authentication
+7. Admin Panel
+Use Django’s built-in admin interface to manage users, events, and more via the browser.
+Access it at: http://127.0.0.1:8000/admin/
+
+8. Authentication
   JWT authentication is optional. To enable it:
   -Install djangorestframework-simplejwt
   -Configure JWT in your Django settings
 
-8. Contributing
+9. Contributing
    Feel free to fork the repository, submit issues, or open pull requests. Contributions are welcome!
 
