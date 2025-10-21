@@ -16,44 +16,6 @@ A Django REST API for managing events — including CRUD operations, user authen
 - **Authentication:** JWT (optional)
 
 ## Setup Instructions
-<<<<<<< HEAD
-
-1. Clone the repository:
-   Git bash
-   git clone https://github.com/brianroba/Event-Management.git
-   cd Event-Management
-
-2. Set up a virtual environment:
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   
-3. Install dependencies:
-   pip install -r requirements.txt
-
-4. Apply migrations:
-   python manage.py migrate
-
-5. Run the development server:
-   python manage.py runserver - The API will be available at http://127.0.0.1:8000/
-
-6. API Endpoints:
-	Method	   Endpoint	       Description
-	POST	/api/register/	    Register a new user
-	POST	/api/login/	        User login
-	GET		/api/events/	    List all events (Filter by: upcoming, categories, date range and pages)
-	POST	/api/events/	    Create a new event (Event organizer only)
-	PUT	    /api/events/{id}/	Update an existing event (Event organizer  only)
-	DELETE	/api/events/{id}/	Delete an event (Event organizer only)
-
-7. Authentication
-  JWT authentication is optional. To enable it:
-  -Install djangorestframework-simplejwt
-  -Configure JWT in your Django settings
-
-8. Contributing
-   Feel free to fork the repository, submit issues, or open pull requests. Contributions are welcome!
-
-=======
 
 1. Clone the repository:
    Git bash
@@ -89,4 +51,4 @@ A Django REST API for managing events — including CRUD operations, user authen
 
 8. Contributing
    Feel free to fork the repository, submit issues, or open pull requests. Contributions are welcome!
->>>>>>> fd9095b2af48af92f6d1b12db681a2379df9922d
+
