@@ -36,13 +36,16 @@ A Django REST API for managing events — including CRUD operations, user authen
    python manage.py runserver - The API will be available at http://127.0.0.1:8000/
 
 6. API Endpoints:
-	Method	   Endpoint	       Description
-	POST	/api/register/	    Register a new user
-	POST	/api/login/	        User login
-	GET		/api/events/	    List all upcoming events
-	POST	/api/events/	    Create a new event (Admin only)
-	PUT	    /api/events/{id}/	    Update an existing event (Admin only)
-	DELETE	/api/events/{id}/	Delete an event (Admin only)
+
+| Method | Endpoint          | Description                             |
+|--------|-------------------|---------------------------------------|
+| POST   | `/api/register/`  | Register a new user                    |
+| POST   | `/api/login/`     | User login                            |
+| GET    | `/api/events/`    | List all upcoming events               |
+| POST   | `/api/events/`    | Create a new event (Event organizer only) |
+| PUT    | `/api/events/{id}/` | Update an existing event (Event organizer only) |
+| DELETE | `/api/events/{id}/` | Delete an event (Event organizer only) |
+
 
 7. Authentication
   JWT authentication is optional. To enable it:
